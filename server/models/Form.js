@@ -2,10 +2,13 @@ import mongoose from 'mongoose';
 
 const fieldSchema = new mongoose.Schema({
   id: { type: String, required: true },
-  type: { 
-    type: String, 
+  type: {
+    type: String,
     required: true,
-    enum: ['text', 'email', 'phone', 'textarea', 'select', 'radio', 'checkbox', 'date', 'file', 'rating', 'question']
+    enum: [
+      'text','email','phone','textarea','select',
+      'radio','checkbox','date','file','rating','question'
+    ]
   },
   label: { type: String, required: true },
   placeholder: String,
@@ -16,11 +19,12 @@ const fieldSchema = new mongoose.Schema({
     maxLength: Number,
     pattern: String
   },
-  // Question/Answer specific fields
-  questionType: { 
-    type: String, 
+  questionType: {
+    type: String,
     enum: ['single-choice', 'multiple-choice'],
-    required: function() { return this.type === 'question'; }
+    required: function () {
+      return this.type === 'question';
+    }
   },
   questionText: String,
   questionOptions: [{
@@ -34,10 +38,10 @@ const formSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   fields: [fieldSchema],
-  folderId: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  folderId: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Folder',
-    default: null // null means standalone form
+    default: null
   },
   settings: {
     allowMultipleResponses: { type: Boolean, default: true },
@@ -52,33 +56,33 @@ const formSchema = new mongoose.Schema({
       backgroundColor: { type: String, default: '#FFFFFF' }
     }
   },
-  status: { 
-    type: String, 
-    enum: ['draft', 'published', 'closed'], 
-    default: 'draft' 
+  status: {
+    type: String,
+    enum: ['draft', 'published', 'closed'],
+    default: 'draft'
   },
   shareUrl: { type: String, unique: true },
-  createdBy: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true 
+    required: true
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  
-  // Analytics
   views: { type: Number, default: 0 },
   responses: { type: Number, default: 0 },
   completionRate: { type: Number, default: 0 }
 });
 
-// Generate unique share URL before saving
-formSchema.pre('save', function(next) {
+formSchema.pre('save', function (next) {
   if (!this.shareUrl) {
-    this.shareUrl = `form-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    this.shareUrl = `form-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
   }
   this.updatedAt = new Date();
   next();
 });
 
-export default mongoose.model('Form', formSchema);
+export default mongoose.models.Form ||
+  mongoose.model('Form', formSchema);
