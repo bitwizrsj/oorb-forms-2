@@ -1,84 +1,29 @@
 import mongoose from 'mongoose';
 
-const fieldSchema = new mongoose.Schema({
-  id: { type: String, required: true },
-  type: { 
-    type: String, 
-    required: true,
-    enum: ['text', 'email', 'phone', 'textarea', 'select', 'radio', 'checkbox', 'date', 'file', 'rating', 'question']
+const responseSchema = new mongoose.Schema({
+  formId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Form',
+    required: true
   },
-  label: { type: String, required: true },
-  placeholder: String,
-  required: { type: Boolean, default: false },
-  options: [String],
-  validation: {
-    minLength: Number,
-    maxLength: Number,
-    pattern: String
+  responses: [{
+    fieldId: { type: String, required: true },
+    fieldLabel: { type: String, required: true },
+    fieldType: { type: String, required: true },
+    value: mongoose.Schema.Types.Mixed,
+    files: [String]
+  }],
+  submittedAt: { type: Date, default: Date.now },
+  submitterInfo: {
+    ip: String,
+    userAgent: String,
+    location: String,
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    savedToAccount: { type: Boolean, default: false }
   },
-  // Question/Answer specific fields
-  questionType: { 
-    type: String, 
-    enum: ['single-choice', 'multiple-choice'],
-    required: function() { return this.type === 'question'; }
-  },
-  questionText: String,
-  questionOptions: [{
-    id: String,
-    text: String,
-    isCorrect: { type: Boolean, default: false }
-  }]
+  completionTime: Number,
+  isComplete: { type: Boolean, default: true }
 });
 
-const formSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
-  fields: [fieldSchema],
-  folderId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Folder',
-    default: null // null means standalone form
-  },
-  settings: {
-    allowMultipleResponses: { type: Boolean, default: true },
-    requireLogin: { type: Boolean, default: false },
-    showProgressBar: { type: Boolean, default: true },
-    emailNotifications: { type: Boolean, default: false },
-    responseLimit: { type: Number, default: null },
-    shuffleQuestions: { type: Boolean, default: false },
-    confirmationPage: { type: Boolean, default: true },
-    customTheme: {
-      primaryColor: { type: String, default: '#3B82F6' },
-      backgroundColor: { type: String, default: '#FFFFFF' }
-    }
-  },
-  status: { 
-    type: String, 
-    enum: ['draft', 'published', 'closed'], 
-    default: 'draft' 
-  },
-  shareUrl: { type: String, unique: true },
-  createdBy: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User',
-    required: true 
-  },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  
-  // Analytics
-  views: { type: Number, default: 0 },
-  responses: { type: Number, default: 0 },
-  completionRate: { type: Number, default: 0 }
-});
-
-// Generate unique share URL before saving
-formSchema.pre('save', function(next) {
-  if (!this.shareUrl) {
-    this.shareUrl = `form-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  this.updatedAt = new Date();
-  next();
-});
-
-export default mongoose.model('Form', formSchema);
+export default mongoose.models.Response ||
+  mongoose.model('Response', responseSchema);
