@@ -874,29 +874,29 @@ const FormDashboard: React.FC<FormDashboardProps> = ({
         )}
 
         {/* Empty State */}
-        {filteredFolders.length === 0 && filteredStandaloneForms.length === 0 && (
-          <div className="text-center py-16">
-            <FileText className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {forms.length === 0 ? 'No forms created yet' : 'No forms or folders found'}
-            </h3>
-            <p className="text-gray-600 mb-6 px-4">
-              {searchTerm || filterStatus !== 'all' 
-                ? 'Try adjusting your search or filter criteria'
-                : 'Get started by creating your first form'
-              }
-            </p>
-           {!searchTerm && (!showDrafts && !showPublished) && forms.length === 0 && (
-              <button
-                onClick={onCreateForm}
-                className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-sm hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Create Your First Form
-              </button>
-            )}
-          </div>
-        )}
+{filteredFolders.length === 0 && filteredStandaloneForms.length === 0 && (
+  <div className="text-center py-16">
+    <FileText className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
+    <h3 className="text-lg font-medium text-gray-900 mb-2">
+      {forms.length === 0 ? 'No forms created yet' : 'No forms or folders found'}
+    </h3>
+    <p className="text-gray-600 mb-6 px-4">
+      {searchTerm || (!showDrafts && !showPublished)
+        ? 'Try adjusting your search or filter criteria'
+        : 'Get started by creating your first form'
+      }
+    </p>
+    {!searchTerm && (showDrafts || showPublished) && forms.length === 0 && (
+      <button
+        onClick={onCreateForm}
+        className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-sm hover:bg-blue-700 transition-colors"
+      >
+        <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+        Create Your First Form
+      </button>
+    )}
+  </div>
+)}
       </div>
 
       {/* Click outside to close dropdowns */}
